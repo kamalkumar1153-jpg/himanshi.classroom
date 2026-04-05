@@ -1,0 +1,45 @@
+<div id="board">Loading...</div>
+
+<!-- Firebase Scripts -->
+<script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
+
+<script>
+// ✅ Firebase Config
+const firebaseConfig = {
+  apiKey: "AIzaSyAowFaiWGyQhrLOs7117qEw9SDKPd-MoMA",
+  authDomain: "himanshi-2009.firebaseapp.com",
+  databaseURL: "https://himanshi-2009-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "himanshi-2009",
+  storageBucket: "himanshi-2009.firebasestorage.app",
+  messagingSenderId: "373651988529",
+  appId: "1:373651988529:web:46c5c603601f6dc522f510"
+};
+
+// ✅ Initialize
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+// 🏆 Load Leaderboard
+db.ref("leaderboard").on("value", snap => {
+  let data = snap.val();
+
+  if(!data){
+    document.getElementById("board").innerHTML = "No scores yet";
+    return;
+  }
+
+  let arr = Object.values(data);
+
+  // 🔥 Sort by highest score
+  arr.sort((a,b)=>b.score - a.score);
+
+  let html = "<h3>Leaderboard</h3>";
+
+  arr.forEach((item, index)=>{
+    html += `<p>#${index+1} ${item.name} - ${item.score}</p>`;
+  });
+
+  document.getElementById("board").innerHTML = html;
+});
+</script>
