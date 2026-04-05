@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Classroom Pro | Dashboard</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        /* डै़शबोर्ड के लिए विशेष स्टाइलिंग */
+        .hero-section {
+            background: linear-gradient(135deg, #1e3a8a, #3b82f6);
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+            border-bottom-left-radius: 30px;
+            border-bottom-right-radius: 30px;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            padding: 20px;
+            margin-top: -30px; /* हीरो सेक्शन के ऊपर थोड़ा चढ़ा हुआ */
+        }
+
+        .menu-card {
+            background: white;
+            padding: 25px;
+            border-radius: 20px;
+            text-align: center;
+            text-decoration: none;
+            color: #1e293b;
+            box-shadow: 0 10px 15px rgba(0,0,0,0.1);
+            transition: 0.3s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .menu-card:active { transform: scale(0.95); }
+
+        .icon-circle {
+            width: 50px;
+            height: 50px;
+            background: #eff6ff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .countdown-box {
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(10px);
+            padding: 15px;
+            border-radius: 15px;
+            margin-top: 20px;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="hero-section">
+        <h1>नमस्ते, विद्यार्थी! 👋</h1>
+        <p>RBSE 12th Board Exam Preparation</p>
+        
+        <div class="countdown-box">
+            <small>परीक्षा में शेष समय:</small>
+            <div id="exam-timer" style="font-size: 1.2rem; font-weight: bold; margin-top: 5px;">
+                Loading...
+            </div>
+        </div>
+    </div>
+
+    <div class="grid-container">
+        <a href="test.html" class="menu-card">
+            <div class="icon-circle">📝</div>
+            <strong>CBT टेस्ट</strong>
+            <small style="color: #64748b;">Practice Now</small>
+        </a>
+
+        <a href="formulas.html" class="menu-card">
+            <div class="icon-circle">⚡</div>
+            <strong>स्मार्ट फॉर्मूला</strong>
+            <small style="color: #64748b;">Physics/Chem</small>
+        </a>
+
+        <a href="notes.html" class="menu-card">
+            <div class="icon-circle">📚</div>
+            <strong>नोट्स & PYQs</strong>
+            <small style="color: #64748b;">Study Vault</small>
+        </a>
+
+        <a href="profile.html" class="menu-card">
+            <div class="icon-circle">👤</div>
+            <strong>मेरी प्रोफाइल</strong>
+            <small style="color: #64748b;">View Progress</small>
+        </a>
+    </div>
+
+    <div style="padding: 0 20px;">
+        <div style="background: #fff; padding: 20px; border-radius: 20px; border-left: 5px solid #10b981;">
+            <h4 style="margin: 0; color: #065f46;">आज का विचार 💡</h4>
+            <p style="font-size: 0.9rem; color: #374151; margin-top: 5px;">
+                "सफलता का कोई शॉर्टकट नहीं होता, इसके लिए कड़ी मेहनत और अनुशासन चाहिए।"
+            </p>
+        </div>
+    </div>
+
+    <script src="js/main.js"></script>
+    <script>
+        // 15 अप्रैल 2027 के लिए काउंटडाउन लॉजिक
+        function startCountdown() {
+            const target = new Date("April 15, 2027 00:00:00").getTime();
+            
+            setInterval(() => {
+                const now = new Date().getTime();
+                const diff = target - now;
+                
+                const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                
+                document.getElementById("exam-timer").innerText = 
+                    `${days} दिन ${hours} घंटे बाकी`;
+            }, 1000);
+        }
+        startCountdown();
+    </script>
+</body>
+</html>
