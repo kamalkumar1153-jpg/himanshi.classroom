@@ -1,0 +1,17 @@
+[
+  {
+    "question": "Velocity ka SI unit kya hai?",
+    "options": ["m/s", "km/h", "m/s²", "N"],
+    "answer": "m/s"
+  },
+  {
+    "question": "Newton ka second law kya hai?",
+    "options": ["F=ma", "E=mc²", "V=IR", "P=VI"],
+    "answer": "F=ma"
+  },
+  {
+    "question": "Acceleration ka unit kya hai?",
+    "options": ["m/s", "m/s²", "N", "kg"],
+    "answer": "m/s²"
+  }
+]
