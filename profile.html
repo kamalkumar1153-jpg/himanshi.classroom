@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Classroom Pro | My Profile</title>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-auth-compat.js"></script>
+
+    <style>
+        :root { --primary: #1e3a8a; --accent: #3b82f6; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f8fafc; margin: 0; padding: 0; }
+        
+        .profile-header {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+            border-bottom-left-radius: 30px;
+            border-bottom-right-radius: 30px;
+        }
+
+        .avatar-circle {
+            width: 80px; height: 80px;
+            background: white; color: var(--primary);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 40px; margin: 0 auto 15px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+
+        .container { padding: 20px; max-width: 600px; margin: auto; }
+
+        .stats-row {
+            display: grid; grid-template-columns: 1fr 1fr;
+            gap: 15px; margin-top: -30px;
+        }
+
+        .stat-card {
+            background: white; padding: 20px;
+            border-radius: 15px; text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+
+        .stat-card h2 { margin: 5px 0; color: var(--primary); }
+        .stat-card p { margin: 0; color: #64748b; font-size: 0.8rem; }
+
+        .history-section { margin-top: 30px; }
+        .history-card {
+            background: white; padding: 15px;
+            border-radius: 12px; margin-bottom: 10px;
+            display: flex; justify-content: space-between; align-items: center;
+            border-left: 5px solid var(--accent);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+        }
+
+        .logout-btn {
+            display: block; width: 100%; padding: 12px;
+            background: #fee2e2; color: #ef4444;
+            border: none; border-radius: 10px;
+            font-weight: bold; cursor: pointer; margin-top: 30px;
+        }
+
+        .nav-link { color: white; text-decoration: none; font-size: 0.9rem; opacity: 0.8; }
+    </style>
+</head>
+<body>
+
+    <div class="profile-header">
+        <a href="index.html" class="nav-link">← डैशबोर्ड</a>
+        <div class="avatar-circle">👤</div>
+        <h2 id="user-display-name" style="margin: 0;">Loading...</h2>
+        <p id="user-display-email" style="opacity: 0.8; margin: 5px 0 0;">...</p>
+    </div>
+
+    <div class="container">
+        <div class="stats-row">
+            <div class="stat-card">
+                <h2 id="total-tests">0</h2>
+                <p>कुल टेस्ट</p>
+            </div>
+            <div class="stat-card">
+                <h2 id="avg-score">0%</h2>
+                <p>औसत स्कोर</p>
+            </div>
+        </div>
+
+        <div class="history-section">
+            <h3 style="color: #1e293b;">📝 टेस्ट हिस्ट्री (Test History)</h3>
+            <div id="history-container">
+                <p style="text-align: center; color: #94a3b8;">डेटा खोजा जा रहा है...</p>
+            </div>
+        </div>
+
+        <button class="logout-btn" onclick="handleLogout()">लॉगआउट (Logout)</button>
+    </div>
+
+    <script>
+        // --- 1. Firebase Config ---
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT.firebaseapp.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT.appspot.com",
+            messagingSenderId: "YOUR_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const auth = firebase.auth();
+
+        // --- 2. Auth State Observer ---
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                document.getElementById("user-display-name").innerText = user.displayName || "विद्यार्थी";
+                document.getElementById("user-display-email").innerText = user.email;
+                loadHistory(user.uid);
+            } else {
+                window.location.href = "auth.html";
+            }
+        });
+
+        // --- 3. Load Results from Firestore ---
+        function loadHistory(uid) {
+            db.collection("test_results")
+              .where("uid", "==", uid)
+              .orderBy("date", "desc")
+              .get()
+              .then((querySnapshot) => {
+                  const container = document.getElementById("history-container");
+                  container.innerHTML = "";
+                  
+                  let totalTests = querySnapshot.size;
+                  let totalScore = 0;
+
+                  if (totalTests === 0) {
+                      container.innerHTML = "<p style='text-align:center;'>अभी तक कोई टेस्ट नहीं दिया गया।</p>";
+                      return;
+                  }
+
+                  querySnapshot.forEach((doc) => {
+                      const data = doc.data();
+                      totalScore += data.score;
+                      const date = data.date.toDate().toLocaleDateString('hi-IN');
+                      
+                      container.innerHTML += `
+                          <div class="history-card">
+                              <div>
+                                  <div style="font-weight:bold;">${data.subject}</div>
+                                  <div style="font-size:0.8rem; color:#64748b;">${date}</div>
+                              </div>
+                              <div style="color:var(--primary); font-weight:bold;">
+                                  ${data.score} अंक
+                              </div>
+                          </div>
+                      `;
+                  });
+
+                  document.getElementById("total-tests").innerText = totalTests;
+                  let avg = Math.round((totalScore / (totalTests * 20)) * 100); // मान लेते हैं 20 अंकों का टेस्ट है
+                  document.getElementById("avg-score").innerText = (avg > 0 ? avg : 0) + "%";
+              })
+              .catch(err => console.log(err));
+        }
+
+        // --- 4. Logout ---
+        function handleLogout() {
+            auth.signOut().then(() => {
+                window.location.href = "auth.html";
+            });
+        }
+    </script>
+</body>
+</html>
