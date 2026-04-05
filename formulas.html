@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Classroom Pro | Smart Formulas</title>
+    <style>
+        :root { --primary: #2563eb; --bg: #f8fafc; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding-bottom: 50px; }
+        
+        .header { background: var(--primary); color: white; padding: 20px; text-align: center; border-radius: 0 0 20px 20px; }
+        
+        .container { padding: 15px; max-width: 600px; margin: auto; }
+        
+        .formula-card {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        .formula-card h3 { color: var(--primary); margin-top: 0; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+        
+        .input-group { margin: 15px 0; }
+        .input-group label { display: block; font-size: 0.8rem; color: #64748b; margin-bottom: 5px; }
+        .input-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            outline: none;
+        }
+
+        .calc-btn {
+            width: 100%;
+            padding: 12px;
+            background: #10b981;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .result-box {
+            margin-top: 15px;
+            padding: 10px;
+            background: #ecfdf5;
+            color: #065f46;
+            border-radius: 8px;
+            font-weight: bold;
+            display: none;
+            text-align: center;
+        }
+
+        .nav-back { display: inline-block; margin-bottom: 10px; color: white; text-decoration: none; font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <a href="index.html" class="nav-back">← डैशबोर्ड पर वापस जाएँ</a>
+        <h1>⚡ स्मार्ट फॉर्मूला हब</h1>
+        <p>वैल्यू भरें और तुरंत उत्तर पाएँ</p>
+    </div>
+
+    <div class="container">
+        
+        <div class="formula-card">
+            <h3>कूलाम का नियम (Electrostatics)</h3>
+            <p style="font-size: 0.8rem; color: #64748b;">सूत्र: $F = k \cdot \frac{q_1 \cdot q_2}{r^2}$</p>
+            
+            <div class="input-group">
+                <label>आवेश $q_1$ (Coulomb)</label>
+                <input type="number" id="q1" placeholder="e.g. 2e-6">
+            </div>
+            <div class="input-group">
+                <label>आवेश $q_2$ (Coulomb)</label>
+                <input type="number" id="q2" placeholder="e.g. 3e-6">
+            </div>
+            <div class="input-group">
+                <label>दूरी $r$ (Meter)</label>
+                <input type="number" id="dist" placeholder="e.g. 0.1">
+            </div>
+            
+            <button class="calc-btn" onclick="calcCoulomb()">बल (Force) निकालें</button>
+            <div id="res-coulomb" class="result-box"></div>
+        </div>
+
+        <div class="formula-card">
+            <h3>मोलरता (Molarity)</h3>
+            <p style="font-size: 0.8rem; color: #64748b;">सूत्र: $M = \frac{\text{Moles of Solute}}{\text{Volume of Solution (L)}}$</p>
+            
+            <div class="input-group">
+                <label>विलेय के मोल (Moles)</label>
+                <input type="number" id="moles" placeholder="e.g. 0.5">
+            </div>
+            <div class="input-group">
+                <label>विलयन का आयतन (Litre)</label>
+                <input type="number" id="volume" placeholder="e.g. 2">
+            </div>
+            
+            <button class="calc-btn" onclick="calcMolarity()">मोलरता निकालें</button>
+            <div id="res-molar" class="result-box"></div>
+        </div>
+
+    </div>
+
+    <script>
+        // कूलाम बल की गणना
+        function calcCoulomb() {
+            const q1 = document.getElementById('q1').value;
+            const q2 = document.getElementById('q2').value;
+            const r = document.getElementById('dist').value;
+            const k = 9e9; // Coulomb Constant
+
+            if(q1 && q2 && r) {
+                const force = (k * q1 * q2) / (r * r);
+                const res = document.getElementById('res-coulomb');
+                res.innerHTML = "स्थिर वैद्युत बल (F) = " + force.toExponential(2) + " N";
+                res.style.display = "block";
+            } else {
+                alert("कृपया सभी वैल्यू भरें!");
+            }
+        }
+
+        // मोलरता की गणना
+        function calcMolarity() {
+            const m = document.getElementById('moles').value;
+            const v = document.getElementById('volume').value;
+
+            if(m && v) {
+                const molarity = m / v;
+                const res = document.getElementById('res-molar');
+                res.innerHTML = "मोलरता (M) = " + molarity.toFixed(2) + " mol/L";
+                res.style.display = "block";
+            } else {
+                alert("कृपया सभी वैल्यू भरें!");
+            }
+        }
+    </script>
+
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</body>
+</html>
