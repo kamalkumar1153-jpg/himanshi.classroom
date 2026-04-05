@@ -1,155 +1,95 @@
-
-<!DOCTYPE html>
-<html lang="hi">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Physics Test | Classroom Pro</title>
-
-<script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-auth-compat.js"></script>
-
-<style>
-:root { --primary:#1e3a8a; --bg:#f1f5f9; }
-body { font-family:sans-serif; background:var(--bg); display:flex; justify-content:center; padding:20px; }
-.quiz { background:white; width:100%; max-width:500px; padding:20px; border-radius:20px; }
-.header { display:flex; justify-content:space-between; }
-.timer { background:#fee2e2; color:red; padding:5px 12px; border-radius:20px; }
-.option { padding:12px; border:2px solid #ddd; margin:8px 0; border-radius:10px; cursor:pointer; }
-.option:hover { background:#eef; }
-.selected { background:#dbeafe; border-color:blue; }
-button { padding:10px 20px; border:none; background:var(--primary); color:white; border-radius:10px; margin-top:10px; }
-</style>
-</head>
-
-<body>
-
-<div class="quiz" id="quiz">
-<div class="header">
-<span id="count"></span>
-<span class="timer" id="timer">05:00</span>
-</div>
-
-<h3 id="question">Loading...</h3>
-<div id="options"></div>
-
-<button onclick="nextQ()">Next</button>
-</div>
-
-<div class="quiz" id="result" style="display:none; text-align:center;">
-<h2>Test Complete</h2>
-<h1 id="score">0</h1>
-</div>
-
 <script>
-// 🔥 Firebase Config
+// Firebase config (same as tumhara fixed)
 const firebaseConfig = {
-apiKey: "YOUR_KEY",AIzaSyAowFaiWGyQhrLOs7117qEw9SDKPd-MoMA",
+  apiKey: "AIzaSyAowFaiWGyQhrLOs7117qEw9SDKPd-MoMA",
   authDomain: "himanshi-2009.firebaseapp.com",
   databaseURL: "https://himanshi-2009-default-rtdb.asia-southeast1.firebasedatabase.app",
   projectId: "himanshi-2009",
   storageBucket: "himanshi-2009.firebasestorage.app",
   messagingSenderId: "373651988529",
-  appId: "1:373651988529:web:46c5c603601f6dc522f510",
-  measurementId: "G-38M1NS3MHP"
-};
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
-Note: This option uses the modular JavaScript SDK, which provides reduced SDK size.
-
-Learn more about Firebase for web: Get Started, Web SDK API Reference, Samples
-
-
-authDomain: "YOUR_DOMAIN",
-databaseURL: "YOUR_DB",
-projectId: "YOUR_ID",
+  appId: "1:373651988529:web:46c5c603601f6dc522f510"
 };
 
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
+const auth = firebase.auth();
 
-// 📚 Questions
-const questions = [
-{q:"Velocity unit?", o:["m/s","kg","N","J"], a:0},
-{q:"F= ?", o:["ma","mc","mv","mm"], a:0},
-{q:"Charge unit?", o:["Volt","Ampere","Coulomb","Ohm"], a:2}
-];
+// 🔐 Google Login
+function login(){
+  const provider = new firebase.auth.GoogleAuthProvider();
+  auth.signInWithPopup(provider);
+}
 
+// 📚 Load Questions from Firebase
+let questions = [];
 let i=0, score=0, selected=null;
 
-// ⏱️ TIMER
-let time=300;
-const timer=setInterval(()=>{
-time--;
-let m=Math.floor(time/60);
-let s=time%60;
-document.getElementById("timer").innerText=
-`${m}:${s<10?"0"+s:s}`;
-
-if(time<=0){
-clearInterval(timer);
-finish();
+function loadQuestions(){
+  db.ref("questions").once("value", snap=>{
+    questions = snap.val();
+    if(!questions){
+      document.getElementById("question").innerText="No questions found";
+      return;
+    }
+    loadQ();
+  });
 }
-},1000);
 
 // 📌 Load Question
 function loadQ(){
-let q=questions[i];
-document.getElementById("count").innerText=
-`Question ${i+1}/${questions.length}`;
-document.getElementById("question").innerText=q.q;
+  let q = questions[i];
 
-let opt="";
-q.o.forEach((x,index)=>{
-opt+=`<div class="option" onclick="select(${index},this)">${x}</div>`;
-});
-document.getElementById("options").innerHTML=opt;
+  document.getElementById("count").innerText =
+    `Question ${i+1}/${questions.length}`;
+
+  document.getElementById("question").innerText = q.q;
+
+  let opt="";
+  q.o.forEach((x,index)=>{
+    opt+=`<div class="option" onclick="select(${index},this)">${x}</div>`;
+  });
+
+  document.getElementById("options").innerHTML=opt;
 }
 
+// Select
 function select(idx,el){
-selected=idx;
-document.querySelectorAll(".option").forEach(e=>e.classList.remove("selected"));
-el.classList.add("selected");
+  selected=idx;
+  document.querySelectorAll(".option").forEach(e=>e.classList.remove("selected"));
+  el.classList.add("selected");
 }
 
-// 👉 Next
+// Next
 function nextQ(){
-if(selected==null){ alert("Select option"); return; }
+  if(selected==null){ alert("Select option"); return; }
 
-if(selected==questions[i].a) score+=4;
-else score-=1;
+  if(selected==questions[i].a) score+=4;
+  else score-=1;
 
-selected=null;
-i++;
+  selected=null;
+  i++;
 
-if(i<questions.length) loadQ();
-else finish();
+  if(i<questions.length) loadQ();
+  else finish();
 }
 
-// 🎯 Finish
+// Finish
 function finish(){
-clearInterval(timer);
-document.getElementById("quiz").style.display="none";
-document.getElementById("result").style.display="block";
-document.getElementById("score").innerText=score;
+  document.getElementById("quiz").style.display="none";
+  document.getElementById("result").style.display="block";
+  document.getElementById("score").innerText=score;
 
-// Firebase Save
-let user=firebase.auth().currentUser;
-if(user){
-db.ref("results/"+user.uid).push({
-score:score,
-time:Date.now()
+  let user=auth.currentUser;
+  if(user){
+    db.ref("leaderboard").push({
+      name:user.displayName,
+      score:score
+    });
+  }
+}
+
+// Start
+document.addEventListener("DOMContentLoaded", ()=>{
+  loadQuestions();
 });
-}
-}
-
-// 🚀 Start
-document.addEventListener("DOMContentLoaded", loadQ);
-
 </script>
-
-</body>
-</html>
