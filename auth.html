@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Classroom Pro | Login</title>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-auth-compat.js"></script>
+    
+    <style>
+        * { box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background: #f0f4f8; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        
+        .auth-card {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .auth-card h2 { color: #1e3a8a; margin-bottom: 5px; }
+        .auth-card p { color: #64748b; font-size: 0.9rem; margin-bottom: 25px; }
+
+        .input-group { margin-bottom: 15px; text-align: left; }
+        .input-group label { display: block; font-size: 0.8rem; margin-bottom: 5px; color: #1e293b; }
+        .input-group input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 10px;
+            outline: none;
+        }
+
+        #auth-btn {
+            width: 100%;
+            padding: 14px;
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .toggle-btn { margin-top: 20px; font-size: 0.9rem; color: #64748b; }
+        .toggle-btn span { color: #2563eb; cursor: pointer; font-weight: bold; }
+        
+        .error-msg { color: #ef4444; font-size: 0.8rem; margin-top: 10px; display: none; }
+    </style>
+</head>
+<body>
+
+    <div class="auth-card">
+        <h2 id="title">स्वागत है!</h2>
+        <p id="subtitle">अपनी पढ़ाई शुरू करने के लिए लॉगिन करें</p>
+
+        <div class="input-group">
+            <label>ईमेल (Email)</label>
+            <input type="email" id="email" placeholder="example@gmail.com">
+        </div>
+
+        <div class="input-group">
+            <label>पासवर्ड (Password)</label>
+            <input type="password" id="password" placeholder="••••••••">
+        </div>
+
+        <p id="error-text" class="error-msg"></p>
+        
+        <button id="auth-btn" onclick="handleAuth()">प्रवेश करें</button>
+
+        <div class="toggle-btn">
+            <p id="toggle-msg">खाता नहीं है? <span onclick="toggleMode()">साइन-अप करें</span></p>
+        </div>
+    </div>
+
+    <script>
+        // --- 1. Firebase Configuration ---
+        // (अपना असली Firebase Config यहाँ पेस्ट करें)
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT.firebaseapp.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT.appspot.com",
+            messagingSenderId: "YOUR_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+
+        let isLoginMode = true;
+
+        // --- 2. Login/Sign-up Toggle ---
+        function toggleMode() {
+            isLoginMode = !isLoginMode;
+            document.getElementById("title").innerText = isLoginMode ? "स्वागत है!" : "नया खाता";
+            document.getElementById("subtitle").innerText = isLoginMode ? "अपनी पढ़ाई शुरू करने के लिए लॉगिन करें" : "Classroom Pro से जुड़ने के लिए रजिस्टर करें";
+            document.getElementById("auth-btn").innerText = isLoginMode ? "प्रवेश करें" : "खाता बनाएँ";
+            document.getElementById("toggle-msg").innerHTML = isLoginMode ? 
+                "खाता नहीं है? <span onclick='toggleMode()'>साइन-अप करें</span>" : 
+                "पहले से खाता है? <span onclick='toggleMode()'>लॉगिन करें</span>";
+        }
+
+        // --- 3. Authentication Logic ---
+        async function handleAuth() {
+            const email = document.getElementById("email").value;
+            const password = document.getElementById("password").value;
+            const errorText = document.getElementById("error-text");
+
+            if(!email || !password) {
+                errorText.innerText = "कृपया सभी जानकारी भरें।";
+                errorText.style.display = "block";
+                return;
+            }
+
+            try {
+                if (isLoginMode) {
+                    // Login
+                    await auth.signInWithEmailAndPassword(email, password);
+                    window.location.href = "index.html"; // सफल होने पर होम पेज पर भेजें
+                } else {
+                    // Sign-up
+                    await auth.createUserWithEmailAndPassword(email, password);
+                    alert("खाता सफलतापूर्वक बन गया!");
+                    window.location.href = "index.html";
+                }
+            } catch (error) {
+                errorText.innerText = "त्रुटि: " + error.message;
+                errorText.style.display = "block";
+            }
+        }
+    </script>
+</body>
+</html>
